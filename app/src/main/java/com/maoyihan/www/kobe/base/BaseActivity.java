@@ -41,7 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         initView();
         loadData();
         initListener();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
     }
 
     @Override
