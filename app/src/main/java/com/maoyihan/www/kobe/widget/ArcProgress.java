@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
@@ -36,6 +37,14 @@ public class ArcProgress extends View {
      * 当前步数文字
      */
     private String mStep;
+    private static final int RECT = 1;
+    private static final int CIRCLE = 2;
+    private static final int TRIANGLE= 3;
+    /**
+     * 当前形状类型
+     */
+    private int mCurrentShape = 1;
+    private Path mPath;
     private RectF mRectF;
 
     public ArcProgress(Context context) {
@@ -49,7 +58,7 @@ public class ArcProgress extends View {
     public ArcProgress(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ArcProgress);
-        mProgress = typedArray.getFloat(R.styleable.ArcProgress_progress,50);
+        mProgress = typedArray.getFloat(R.styleable.ArcProgress_progress,100);
         typedArray.recycle();
         init();
     }
@@ -57,16 +66,22 @@ public class ArcProgress extends View {
     private void init() {
         mPaint = new Paint();
         mRectF = new RectF(-200, -200, 200, 200);
-        progressAnimator();
+        mPath = new Path();
+        mPath.moveTo(-100,100);
+        mPath.lineTo(0,-100);
+        mPath.lineTo(100,100);
+        mPath.close();
+//        progressAnimation();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.translate(canvas.getWidth() / 2, canvas.getHeight() / 2);
-        drawBg(canvas);
-        drawProgress(canvas);
-        drawText(canvas);
+        drawVarious(canvas);
+//        drawBg(canvas);
+//        drawProgress(canvas);
+//        drawText(canvas);
     }
 
     private void drawBg(Canvas canvas) {
@@ -75,7 +90,7 @@ public class ArcProgress extends View {
         //笔头为圆
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(30);
-        canvas.drawArc(mRectF, 120, 300, false, mPaint);
+        canvas.drawArc(mRectF, 0, 360, false, mPaint);
     }
 
     private void drawProgress(Canvas canvas) {
@@ -84,7 +99,7 @@ public class ArcProgress extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(30);
-        canvas.drawArc(mRectF, 120, mCurrentProgress, false, mPaint);
+        canvas.drawArc(mRectF, 0, mCurrentProgress, false, mPaint);
         
     }
 
@@ -104,8 +119,8 @@ public class ArcProgress extends View {
         canvas.drawText(mStep,-dx,0,mPaint);
     }
 
-    private void progressAnimator(){
-        ValueAnimator barAnimator = ValueAnimator.ofFloat(0,(mProgress / 100) * 300);
+    private void progressAnimation(){
+        ValueAnimator barAnimator = ValueAnimator.ofFloat(0,(mProgress / 100) * 360);
         barAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         barAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -128,4 +143,43 @@ public class ArcProgress extends View {
         animatorSet.setDuration(3000);
         animatorSet.start();
     }
+
+    private void drawVarious(Canvas canvas){
+        switch (mCurrentShape){
+            case RECT:
+                mPaint.setColor(Color.RED);
+                canvas.drawRect(mRectF,mPaint);
+                break;
+            case CIRCLE:
+                mPaint.setColor(Color.BLUE);
+                canvas.drawCircle(0,0,100,mPaint);
+                break;
+            case TRIANGLE:
+                mPaint.setColor(Color.BLACK);
+                mPaint.setStyle(Paint.Style.FILL);
+                mPaint.setStrokeWidth(15);
+                canvas.drawPath(mPath,mPaint);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void changeShape(){
+        switch (mCurrentShape){
+            case RECT:
+                mCurrentShape = CIRCLE;
+                break;
+            case CIRCLE:
+                mCurrentShape = TRIANGLE;
+                break;
+            case TRIANGLE:
+                mCurrentShape = RECT;
+                break;
+            default:
+                break;
+        }
+        invalidate();
+    }
+
 }
