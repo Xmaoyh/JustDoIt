@@ -94,8 +94,9 @@ public class ColorTextView extends android.support.v7.widget.AppCompatTextView {
         // 计算基线到中心点的位置
         int offY = fontTotalHeight / 2 - fontMetrics.bottom;
         // 计算基线位置
-        int baselineX = (getWidth() - bounds.width()) / 2;
+        int baselineX = (getWidth() - bounds.width()) / 2;//控件宽度的一半减去文字宽度的一般
         int baselineY = (getHeight() + fontTotalHeight) / 2 - offY;
+//        int baselineY = (getHeight() + bounds.height()) / 2 ;
         canvas.drawText(mText, baselineX, baselineY, paint);
         canvas.restore();
     }
