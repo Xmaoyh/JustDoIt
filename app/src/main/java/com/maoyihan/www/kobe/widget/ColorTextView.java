@@ -1,5 +1,6 @@
 package com.maoyihan.www.kobe.widget;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -40,11 +41,12 @@ public class ColorTextView extends android.support.v7.widget.AppCompatTextView {
     public ColorTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initPaint();
+        performAnimation();
     }
 
     private void initPaint() {
-        mLeftPaint = getPaintByColor(Color.BLACK);
-        mRightPaint = getPaintByColor(Color.RED);
+        mLeftPaint = getPaintByColor(Color.RED);
+        mRightPaint = getPaintByColor(Color.BLACK);
     }
 
     private Paint getPaintByColor(int color) {
@@ -68,11 +70,13 @@ public class ColorTextView extends android.support.v7.widget.AppCompatTextView {
     }
 
     private void drawLeft(Canvas canvas, int middle) {
-        drawText(canvas, 0, middle, mLeftPaint);
+//        drawText(canvas, 0, middle, mLeftPaint); //向左变色
+        drawText(canvas, 0, getWidth()-middle, mLeftPaint);//向右变色
     }
 
     private void drawRight(Canvas canvas, int middle) {
-        drawText(canvas, middle, getWidth(), mRightPaint);
+//        drawText(canvas, middle, getWidth(), mRightPaint);//向左变色
+        drawText(canvas, getWidth()-middle, getWidth(), mRightPaint);//向右变色
     }
 
     private void drawText(Canvas canvas, int startX, int endX, Paint paint){
@@ -93,5 +97,18 @@ public class ColorTextView extends android.support.v7.widget.AppCompatTextView {
         int baselineY = (getHeight() + fontTotalHeight) / 2 - offY ;
         canvas.drawText(mText, baselineX, baselineY, paint);
         canvas.restore();
+    }
+
+    private void performAnimation(){
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0,1);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mCurrentProgress = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        valueAnimator.setDuration(2000);
+        valueAnimator.start();
     }
 }
